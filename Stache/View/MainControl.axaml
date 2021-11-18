@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="360"
+             x:Class="Stache.View.MainControl">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <TextBlock>Test 1</TextBlock>
+            <TextBlock>Test 2</TextBlock>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Left" Orientation="Vertical">
+            <TextBlock>Test A</TextBlock>
+            <TextBlock>Test B</TextBlock>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

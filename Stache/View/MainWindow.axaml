@@ -1,17 +1,24 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:GsFrontend.ViewModel"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="GsFrontend.View.MainWindow"
+		xmlns:views="clr-namespace:Stache.View"
+        x:Class="Stache.View.MainWindow"
+        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="360"
         Icon="/Assets/avalonia-logo.ico"
-        Title="GsFrontend">
+        Title="GitStache">
 
-    <Design.DataContext>
+	<!--
+	    xmlns:vm="using:GsFrontend.ViewModel"
+
+	<Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-
+	-->
+    
+    <!--
     <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    -->
+    <views:MainControl/>
 
 </Window>

@@ -2,9 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using System;
 
-using GsFrontend.ViewModel;
+using Stache.ViewModel;
 
-namespace GsFrontend
+namespace Stache
 {
 	public class ViewLocator : IDataTemplate
 	{
@@ -25,7 +25,7 @@ namespace GsFrontend
 
 		public bool Match(object data)
 		{
-			return data is IViewModelBase;
+			return data is ViewModelBase;
 		}
 	}
 }

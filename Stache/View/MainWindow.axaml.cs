@@ -2,16 +2,21 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace GsFrontend.View
+namespace Stache.View
 {
 	public class MainWindow : Window
 	{
 		public MainWindow()
 		{
-			AvaloniaXamlLoader.Load(this);
+			InitializeComponent();
 #if DEBUG
 			this.AttachDevTools();
 #endif
+		}
+
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 		}
 	}
 }
