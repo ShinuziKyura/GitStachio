@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.WebView.Maui;
-using Stachio.Data;
+using Stachio.Frontend.Shared;
 
 namespace Stachio;
 
@@ -16,12 +16,9 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-		#if DEBUG
+#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-		
-		builder.Services.AddSingleton<WeatherForecastService>();
-
-		return builder.Build();
+        return builder.Build();
 	}
 }
