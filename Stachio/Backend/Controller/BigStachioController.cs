@@ -2,6 +2,17 @@ namespace Stachio.Backend.Controller;
 
 public sealed class BigStachioController
 {
+    public BigStachioController()
+    {
+        appConfigController = AppConfigController.getInstance();
+        commandController = CommandController.getInstance();
+        commandSequenceController = CommandSequenceController.getInstance();
+        logController = LogController.getInstance();
+        repoConfigController = RepoConfigController.getInstance();
+        repositoryController = RepositoryController.getInstance();
+        userController = UserController.getInstance();
+    }
+
     private AppConfigController appConfigController;
     private CommandController commandController;
     private CommandSequenceController commandSequenceController;
@@ -9,15 +20,4 @@ public sealed class BigStachioController
     private RepoConfigController repoConfigController;
     private RepositoryController repositoryController;
     private UserController userController;
-
-    public BigStachioController()
-    {
-        appConfigController = AppConfigController.getInstance();
-        commandController = CommandController.getInstance();
-        commandSequenceController = CommandSequenceController.getInstance();
-        logController = LogController.getInstantce();
-        repoConfigController = RepoConfigController.getInstance();
-        repositoryController = RepositoryController.getInstance();
-        userController = UserController.getInstance();
-    }
 }

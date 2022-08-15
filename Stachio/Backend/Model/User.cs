@@ -2,22 +2,18 @@
 
 public sealed class User
 {
+    public string username { get; set; }
 
-	private string username;
+    public string password { get; set; }
 
-	private string password;
-
-	public User(string username)
+    public User(string username)
 	{
 		this.username = username;
 	}
 
-	public User(string username, string password)
+    public User(string username, string password)
 	{
 		this.username = username;
 		this.password = password;
-	}
-
-	public string Username { get => username; set => username = value; }
-    public string Password { get => password; set => password = value; }
+    }
 }

@@ -1,72 +1,57 @@
 ﻿namespace Stachio.Backend.Model;
 
-
-
 public sealed class AppConfig
 {
+    public List<CommandSequence> commandSequenceList { get; private set; }
 
-    private static AppConfig instance;
+    public List<Repository> repoList { get; private set; }
 
-	private List<Repository> repos;
-
-	private List<CommandSequence> commandSequences;
-
-	private List<User> users;
-
-    private AppConfig()
-	{
-		this.repos = new List<Repository>();
-
-		this.commandSequences = new List<CommandSequence>();
-
-		this.users = new List<User>();
-
-	}
+    public List<User> userList { get; private set; }
 
     public static AppConfig getInstance()
     {
-        if(instance == null)
-        {
-            instance = new AppConfig();
-        }
-        return instance;
+        return instance ?? (instance = new AppConfig());
     }
-
-
-	public void addRepository(Repository repo)
-	{
-        repos.Add(repo ?? throw new ArgumentNullException(nameof(repo)));
-	}
-
-	public bool deleteRepository(Repository repo)
-	{
-		return repos.Remove(repo ?? throw new ArgumentNullException(nameof(repo)));
-	}
 
     public void addCommandSequence(CommandSequence commandSequence)
     {
-        commandSequences.Add(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        commandSequenceList.Add(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
     }
 
     public bool deleteCommandSequence(CommandSequence commandSequence)
     {
-        return commandSequences.Remove(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        return commandSequenceList.Remove(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
     }
 
-	public void addUser(User user)
+    public void addRepository(Repository repo)
+	{
+        repoList.Add(repo ?? throw new ArgumentNullException(nameof(repo)));
+	}
+
+	public bool deleteRepository(Repository repo)
+	{
+		return repoList.Remove(repo ?? throw new ArgumentNullException(nameof(repo)));
+    }
+
+    public void addUser(User user)
     {
-        users.Add(user ?? throw new ArgumentNullException(nameof(user)));
+        userList.Add(user ?? throw new ArgumentNullException(nameof(user)));
     }
 
     public bool deleteUser(User user)
     {
-        return users.Remove(user ?? throw new ArgumentNullException(nameof(user)));
+        return userList.Remove(user ?? throw new ArgumentNullException(nameof(user)));
     }
 
+    private static AppConfig instance;
 
-    public List<Repository> Repos { get => repos; set => repos = value; }
-    public List<CommandSequence> CommandSequences { get => commandSequences; set => commandSequences = value; }
-    public List<User> Users { get => users; set => users = value; }
+    private AppConfig()
+    {
+        this.repoList = new List<Repository>();
 
+        this.userList = new List<User>();
 
+        this.commandSequenceList = new List<CommandSequence>();
+
+    }
 }

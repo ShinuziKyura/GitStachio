@@ -2,18 +2,15 @@
 
 public sealed class Repository
 {
+    public RepoConfig repoConfig { get; set; }
 
-	private RepoConfig repoConfig;
-
-	public Repository(User user)
+    public Repository(User user)
 	{
 		repoConfig = new RepoConfig(user);
 	}
 
-	public Repository(RepoConfig repoConfig)
+    public Repository(RepoConfig repoConfig)
 	{
 		this.repoConfig = repoConfig;
 	}
-
-	public RepoConfig RepoConfig { get => repoConfig; set => repoConfig = value; }
 }

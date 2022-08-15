@@ -1,33 +1,26 @@
-﻿using Microsoft.Maui.Controls;
-
-namespace Stachio.Backend.Model;
+﻿namespace Stachio.Backend.Model;
 
 public sealed class CommandSequence
 {
-	private List<Command> commands;
+    public List<Command> commandList { get; private set; }
 
-
-	public CommandSequence()
+    public CommandSequence()
 	{
-		commands = new List<Command>(); 
+		commandList = new List<Command>(); 
 	}
 
-	public CommandSequence(List<Command> commands)
+    public CommandSequence(List<Command> commandList)
 	{
-		this.commands = commands;
+		this.commandList = commandList;
 	}
-
 
     public void addCommand(Command command)
     {
-        commands.Add(command ?? throw new ArgumentNullException(nameof(command)));
+        commandList.Add(command ?? throw new ArgumentNullException(nameof(command)));
     }
 
     public bool deleteCommand(Command command)
     {
-        return commands.Remove(command ?? throw new ArgumentNullException(nameof(command)));
-    } 
-
-
-    public List<Command> Commands { get => commands; set => commands = value; }
+        return commandList.Remove(command ?? throw new ArgumentNullException(nameof(command)));
+    }
 }

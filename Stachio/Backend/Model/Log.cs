@@ -2,9 +2,6 @@
 
 public sealed class Log
 {
-
-
-
 	public Log()
 	{
 	}

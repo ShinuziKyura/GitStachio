@@ -4,21 +4,14 @@ namespace Stachio.Backend.Controller;
 
 public sealed class RepositoryController
 {
+    public static RepositoryController getInstance()
+    {
+        return instance ?? (instance = new RepositoryController());
+    }
+
     private static RepositoryController instance;
 
     private RepositoryController()
     {
     }
-
-    public static RepositoryController getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new RepositoryController();
-        }
-
-        return instance;
-
-    }
-
 }

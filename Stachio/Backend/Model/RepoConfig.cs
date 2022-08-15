@@ -2,44 +2,41 @@
 
 public sealed class RepoConfig
 {
-    private List<CommandSequence> commandSequences;
+    public List<CommandSequence> commandSequenceList { get; private set; }
 
-    private List<User> users;
+    public List<User> userList { get; private set; }
 
     public RepoConfig(User user)
     {
-        this.commandSequences = new List<CommandSequence>();
-        this.users = new List<User>();
+        this.commandSequenceList = new List<CommandSequence>();
+        this.userList = new List<User>();
 
-        this.users.Add(user?? throw new ArgumentNullException(nameof(user)));
+        this.userList.Add(user ?? throw new ArgumentNullException(nameof(user)));
     }
 
-    public RepoConfig(List<CommandSequence> commandSequences, List<User> users)
+    public RepoConfig(List<CommandSequence> commandSequenceList, List<User> userList)
     {
-        this.commandSequences = commandSequences;
-        this.users=users.Count > 0? throw new InvalidDataException() : users;
+        this.commandSequenceList = commandSequenceList;
+        this.userList = (userList.Count > 0 ? throw new InvalidDataException() : userList);
     }
 
     public void addCommandSequence(CommandSequence commandSequence)
     {
-        commandSequences.Add(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        commandSequenceList.Add(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
     }
 
     public bool deleteCommandSequence(CommandSequence commandSequence)
     {
-        return commandSequences.Remove(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        return commandSequenceList.Remove(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
     }
 
     public void addUser(User user)
     {
-        users.Add(user ?? throw new ArgumentNullException(nameof(user)));
+        userList.Add(user ?? throw new ArgumentNullException(nameof(user)));
     }
 
     public bool deleteUser(User user)
     {
-        return users.Remove(user ?? throw new ArgumentNullException(nameof(user)));
+        return userList.Remove(user ?? throw new ArgumentNullException(nameof(user)));
     }
-
-    public List<CommandSequence> CommandSequences { get => commandSequences; set => commandSequences = value; }
-    public List<User> Users { get => users; set => users = value; }
 }

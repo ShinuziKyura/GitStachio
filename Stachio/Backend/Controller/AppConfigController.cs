@@ -4,7 +4,12 @@ namespace Stachio.Backend.Controller;
 
 public sealed class AppConfigController
 {
-    private AppConfig appConfig;
+    public AppConfig appConfig { get; private set; }
+
+    public static AppConfigController getInstance()
+    {
+        return instance ?? (instance = new AppConfigController());
+    }
 
     private static AppConfigController instance;
 
@@ -12,18 +17,5 @@ public sealed class AppConfigController
     {
         //should load File with all the structure
         this.appConfig = AppConfig.getInstance();
-    }
-
-    public AppConfig AppConfig { get => appConfig;}
-
-
-    public static AppConfigController getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new AppConfigController();   
-        }
-
-        return instance;
     }
 }
