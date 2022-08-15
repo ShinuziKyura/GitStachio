@@ -4,13 +4,16 @@
 
 public sealed class AppConfig
 {
+
+    private static AppConfig instance;
+
 	private List<Repository> repos;
 
 	private List<CommandSequence> commandSequences;
 
 	private List<User> users;
 
-    public AppConfig()
+    private AppConfig()
 	{
 		this.repos = new List<Repository>();
 
@@ -20,12 +23,15 @@ public sealed class AppConfig
 
 	}
 
-	public AppConfig(List<Repository> repos, List<CommandSequence> commandSequences, List<User> users)
-	{
-		this.repos = repos ?? throw new ArgumentNullException(nameof(repos));
-		this.commandSequences = commandSequences ?? throw new ArgumentNullException(nameof(commandSequences));
-		this.users = users ?? throw new ArgumentNullException(nameof(users));
-	}
+    public static AppConfig getInstance()
+    {
+        if(instance == null)
+        {
+            instance = new AppConfig();
+        }
+        return instance;
+    }
+
 
 	public void addRepository(Repository repo)
 	{

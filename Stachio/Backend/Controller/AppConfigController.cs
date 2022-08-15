@@ -11,7 +11,7 @@ public sealed class AppConfigController
     private AppConfigController()
     {
         //should load File with all the structure
-        this.appConfig = new AppConfig();
+        this.appConfig = AppConfig.getInstance();
     }
 
     public AppConfig AppConfig { get => appConfig;}

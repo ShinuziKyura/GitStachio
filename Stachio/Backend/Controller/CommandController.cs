@@ -4,20 +4,18 @@ namespace Stachio.Backend.Controller;
 
 public sealed class CommandController
 {
-    private AppConfig appConfig;
 
     private static CommandController instance;
 
-    private CommandController(AppConfig appConfig)
+    private CommandController()
     {
-        this.appConfig = appConfig;
     }
 
-    public static CommandController getInstance(AppConfig appConfig)
+    public static CommandController getInstance()
     {
         if (instance == null)
         {
-            instance = new CommandController(appConfig);
+            instance = new CommandController();
         }
 
         return instance;

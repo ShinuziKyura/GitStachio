@@ -4,20 +4,17 @@ namespace Stachio.Backend.Controller;
 
 public sealed class RepoConfigController
 {
-    private AppConfig appConfig;
-
     private static RepoConfigController instance;
     
-    private RepoConfigController(AppConfig appConfig)
+    private RepoConfigController()
     {
-        this.appConfig = appConfig;
     }
 
-    public static RepoConfigController getInstance(AppConfig appConfig)
+    public static RepoConfigController getInstance()
     {
         if(instance == null)
         {
-            instance = new RepoConfigController(appConfig);
+            instance = new RepoConfigController();
         }
 
         return instance;

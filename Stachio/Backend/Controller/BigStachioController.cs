@@ -13,11 +13,11 @@ public sealed class BigStachioController
     public BigStachioController()
     {
         appConfigController = AppConfigController.getInstance();
-        commandController = CommandController.getInstance(appConfigController.AppConfig);
-        commandSequenceController = CommandSequenceController.getInstance(appConfigController.AppConfig);
+        commandController = CommandController.getInstance();
+        commandSequenceController = CommandSequenceController.getInstance();
         logController = LogController.getInstantce();
-        repoConfigController = RepoConfigController.getInstance(appConfigController.AppConfig);
-        repositoryController = RepositoryController.getInstance(appConfigController.AppConfig);
-        userController = UserController.getInstance(appConfigController.AppConfig);
+        repoConfigController = RepoConfigController.getInstance();
+        repositoryController = RepositoryController.getInstance();
+        userController = UserController.getInstance();
     }
 }
