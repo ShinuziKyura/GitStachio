@@ -25,21 +25,6 @@ public static class MauiProgram
 #endif
         builder.Services.AddSingleton<BigStachioController>();
 
-        // TODO some test code, remove this once done
-        {
-            var command = new Command("Git Version");
-
-            var execPath = "C:\\Program Files\\Git\\cmd\\git.exe";
-            var commandString = "";
-            var commandArg = "--version";
-            command.setExecutablePath(execPath);
-            command.setCommandString(commandString);
-            command.addArgument(commandArg, ProcessArgumentType.Flag);
-
-            var result = command.executeCommandAsync();
-            Task.WaitAll(result);
-        }
-
         return builder.Build();
     }
 }

@@ -12,6 +12,9 @@ public sealed class Command
 
     public string executablePath { get; private set; }
 
+    // TODO change this to be more... refined
+    public string commandOutput { get; private set; }
+
     public Command(string descriptiveName)
     {
         this.descriptiveName = descriptiveName;
@@ -81,28 +84,32 @@ public sealed class Command
             WindowStyle = ProcessWindowStyle.Hidden,
             CreateNoWindow = true,
             UseShellExecute = false,
+            //RedirectStandardInput = true,
             RedirectStandardOutput = true,
-            //RedirectStandardError = true,
-            // TODO same for error and input maybe?
+            RedirectStandardError = true,
+            // TODO same for input maybe?
         };
 
-        var handleDataReceived = new DataReceivedEventHandler((sender, dataReceived) =>
+        var onDataReceivedHandler = new DataReceivedEventHandler((sender, dataReceived) =>
         {
             // TODO send output somewhere
-            Debugger.Log(0, "", $"AsyncProcess '{descriptiveName}': {dataReceived.Data}\n");
+            if (dataReceived.Data is not null)
+            {
+                Debugger.Log(0, "", $"AsyncProcess '{descriptiveName}': {dataReceived.Data}\n");
+                
+                commandOutput += dataReceived.Data;
+            }
         });
 
-        process.OutputDataReceived += handleDataReceived;
-        //process.ErrorDataReceived += handleDataReceived;
+        process.OutputDataReceived += onDataReceivedHandler;
+        process.ErrorDataReceived += onDataReceivedHandler;
 
         if (process.Start())
         {
             process.BeginOutputReadLine();
-            //process.BeginErrorReadLine();
+            process.BeginErrorReadLine();
 
-            // TODO FIXME unga bunga, this not working, what wrong?
-            //await process.WaitForExitAsync();
-            process.WaitForExit();
+            await process.WaitForExitAsync().ConfigureAwait(false);
 
             // TODO send this as output somewhere (maybe log file)
             Debugger.Log(0, "", $"AsyncProcess '{descriptiveName}' has exited with code {process.ExitCode}\n");

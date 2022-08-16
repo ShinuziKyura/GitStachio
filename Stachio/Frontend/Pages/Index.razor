@@ -1,7 +1,38 @@
 ﻿@page "/"
 
+@using Stachio.Backend.Model.Enums
+@using Stachio.Backend.Model
+
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
+<p>
+<button onclick="@onTestCommand">Test me!</button>
+
+<span>Git version: @GitVersion</span>
+</p>
+
 <SurveyPrompt Title="How is Blazor working for you?" />
+
+@code
+{
+    protected string GitVersion { get; set; }
+
+    protected async Task onTestCommand(MouseEventArgs mouseEventArgs)
+    {
+        // TODO some test code, remove this once done
+        var command = new Command("Git Version");
+
+        var execPath = "C:\\Program Files\\Git\\cmd\\git.exe";
+        var commandString = "";
+        var commandArg = "--version";
+        command.setExecutablePath(execPath);
+        command.setCommandString(commandString);
+        command.addArgument(commandArg, ProcessArgumentType.Flag);
+
+        await command.executeCommandAsync();
+
+        GitVersion = command.commandOutput;
+    }
+}
