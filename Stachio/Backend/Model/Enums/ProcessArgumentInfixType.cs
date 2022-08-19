@@ -2,8 +2,6 @@
 
 public enum ProcessArgumentInfixType
 {
-    // Defaults to space
-    None,
     Space,
     Equal,
     Colon,

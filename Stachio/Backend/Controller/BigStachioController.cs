@@ -13,8 +13,6 @@ public sealed class BigStachioController
         userController = UserController.getInstance();
     }
 
-    
-
     private AppConfigController appConfigController;
     private CommandController commandController;
     private CommandSequenceController commandSequenceController;

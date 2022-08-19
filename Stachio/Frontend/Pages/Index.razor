@@ -2,13 +2,14 @@
 
 @using Stachio.Backend.Model.Enums
 @using Stachio.Backend.Model
+@using Stachio.Backend.Utils
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
 <p>
-<button onclick="@onTestCommand">Test me!</button>
+<button @onclick=@OnTestGitVersion>Test me!</button>
 
 <span>Git version: @GitVersion</span>
 </p>
@@ -19,20 +20,20 @@ Welcome to your new app.
 {
     protected string GitVersion { get; set; }
 
-    protected async Task onTestCommand(MouseEventArgs mouseEventArgs)
+    // TODO some test code, remove this once done
+    protected async Task OnTestGitVersion(MouseEventArgs mouseEventArgs)
     {
-        // TODO some test code, remove this once done
         var command = new Command("Git Version");
 
         var execPath = "C:\\Program Files\\Git\\cmd\\git.exe";
         var commandString = "";
         var commandArg = "--version";
-        command.setExecutablePath(execPath);
-        command.setCommandString(commandString);
-        command.addArgument(commandArg, ProcessArgumentType.Flag);
+        command.SetExecutablePath(execPath);
+        command.SetCommandString(commandString);
+        command.AddCommandArgument(commandArg, ProcessArgumentType.Flag);
 
-        await command.executeCommandAsync();
+        await UISafeTask.Run(async () => await command.ExecuteCommandAsync());
 
-        GitVersion = command.commandOutput;
+        GitVersion = command.CommandOutput;
     }
 }

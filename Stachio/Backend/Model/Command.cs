@@ -8,33 +8,33 @@ namespace Stachio.Backend.Model;
 
 public sealed class Command
 {
-    public string descriptiveName { get; private set; }
+    public string DescriptiveName { get; private set; }
 
-    public string executablePath { get; private set; }
+    public string ExecutablePath { get; private set; }
 
     // TODO change this to be more... refined
-    public string commandOutput { get; private set; }
+    public string CommandOutput { get; private set; }
 
     public Command(string descriptiveName)
     {
-        this.descriptiveName = descriptiveName;
+        this.DescriptiveName = descriptiveName;
     }
 
-    public bool setExecutablePath(string executablePath)
+    public bool SetExecutablePath(string executablePath)
     {
-        bool hasValidPath = isExecutablePathValid(executablePath);
-        this.executablePath = hasValidPath ? executablePath : string.Empty;
+        bool hasValidPath = IsExecutablePathValid(executablePath);
+        ExecutablePath = hasValidPath ? executablePath : string.Empty;
         return hasValidPath;
     }
 
-    public void setCommandString(string commandString)
+    public void SetCommandString(string newCommandString)
     {
-        this.commandString = commandString;
+        commandString = newCommandString;
     }
 
-    public void addArgument(string argumentPrefix, 
+    public void AddCommandArgument(string argumentPrefix, 
                             ProcessArgumentType argumentType,
-                            ProcessArgumentInfixType argumentInfixType = ProcessArgumentInfixType.None)
+                            ProcessArgumentInfixType argumentInfixType = ProcessArgumentInfixType.Space)
     {
         int argIndex = numArguments++;
         string argumentFormatString = string.Empty;
@@ -44,7 +44,6 @@ public sealed class Command
             ++numRequiredArguments;
             switch (argumentInfixType)
             {
-                case ProcessArgumentInfixType.None:
                 case ProcessArgumentInfixType.Space:
                     argumentFormatString += " ";
                     break;
@@ -70,7 +69,7 @@ public sealed class Command
         commandString += $" {argumentPrefix}{argumentFormatString}";
     }
 
-    public async Task<bool> executeCommandAsync(params object[] arguments)
+    public async Task<bool> ExecuteCommandAsync(params object[] arguments)
     {
         using Process process = new();
 
@@ -79,7 +78,7 @@ public sealed class Command
 
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = executablePath,
+            FileName = ExecutablePath,
             Arguments = procArgs,
             WindowStyle = ProcessWindowStyle.Hidden,
             CreateNoWindow = true,
@@ -95,9 +94,9 @@ public sealed class Command
             // TODO send output somewhere
             if (dataReceived.Data is not null)
             {
-                Debugger.Log(0, "", $"AsyncProcess '{descriptiveName}': {dataReceived.Data}\n");
-                
-                commandOutput += dataReceived.Data;
+                Debugger.Log(0, "", $"CommandProcess '{DescriptiveName}': {dataReceived.Data}\n");
+
+                CommandOutput += dataReceived.Data;
             }
         });
 
@@ -109,10 +108,10 @@ public sealed class Command
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            await process.WaitForExitAsync().ConfigureAwait(false);
+            await process.WaitForExitAsync();
 
             // TODO send this as output somewhere (maybe log file)
-            Debugger.Log(0, "", $"AsyncProcess '{descriptiveName}' has exited with code {process.ExitCode}\n");
+            Debugger.Log(0, "", $"CommandProcess '{DescriptiveName}' has exited with code {process.ExitCode}\n");
 
             return true;
         }
@@ -129,7 +128,7 @@ public sealed class Command
     private int numArguments;
     private int numRequiredArguments;
 
-    private static bool isExecutablePathValid(string filePath)
+    private static bool IsExecutablePathValid(string filePath)
     {
         if (string.IsNullOrEmpty(filePath))
         {
