@@ -13,6 +13,12 @@ public sealed class BigStachioController
         userController = UserController.getInstance();
     }
 
+    public void SaveAppConfig() { appConfigController.Save();}
+
+    public void LoadAppConfig() { appConfigController.Load();}
+
+
+
     private AppConfigController appConfigController;
     private CommandController commandController;
     private CommandSequenceController commandSequenceController;
