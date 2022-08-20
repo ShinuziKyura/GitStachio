@@ -1,102 +1,194 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
-using System.Security;
+using System.Text;
 
 using Stachio.Backend.Model.Enums;
+using Stachio.Backend.Model.Structs;
 
 namespace Stachio.Backend.Model;
 
-public sealed class Command
+public class Command
 {
-    public string DescriptiveName { get; private set; }
+    public string descriptiveName { get; private set; }
 
-    public string ExecutablePath { get; private set; }
+    public string executablePath { get; private set; }
 
-    // TODO change this to be more... refined
-    public string CommandOutput { get; private set; }
-
-    public Command(string descriptiveName)
+    public Command(string newDescriptiveName)
     {
-        this.DescriptiveName = descriptiveName;
+        descriptiveName = newDescriptiveName;
+        executablePath = string.Empty;
+
+        commandString = string.Empty;
+        cachedCommandStringFormat = null;
+        commandArgumentList = new List<CommandArgumentData>();
+        numFormatArguments = 0;
     }
 
-    public bool SetExecutablePath(string executablePath)
+    public bool ConfigureExecutablePath(string newExecutablePath)
     {
-        bool hasValidPath = IsExecutablePathValid(executablePath);
-        ExecutablePath = hasValidPath ? executablePath : string.Empty;
+        bool hasValidPath = File.Exists(newExecutablePath);
+        executablePath = hasValidPath ? newExecutablePath : string.Empty;
         return hasValidPath;
+    }
+
+    public bool HasValidExecutablePath()
+    {
+        return executablePath != string.Empty;
+    }
+
+    public string GetCommandString()
+    {
+        return commandString;
     }
 
     public void SetCommandString(string newCommandString)
     {
+        cachedCommandStringFormat = null;
         commandString = newCommandString;
     }
 
-    public void AddCommandArgument(string argumentPrefix, 
-                            ProcessArgumentType argumentType,
-                            ProcessArgumentInfixType argumentInfixType = ProcessArgumentInfixType.Space)
+    public IEnumerable<CommandArgumentData> GetCommandArgumentList()
     {
-        int argIndex = numArguments++;
-        string argumentFormatString = string.Empty;
+        return commandArgumentList;
+    }
 
-        if (argumentType != ProcessArgumentType.Flag)
+    public CommandArgumentData GetCommandArgument(int index)
+    {
+        return commandArgumentList[index];
+    }
+
+    public int AddCommandArgument(string argumentPrefix,
+                                  CommandArgumentType argumentType,
+                                  CommandArgumentInfixType argumentInfixType = CommandArgumentInfixType.Space)
+    {
+        int index = commandArgumentList.Count;
+
+        int argumentIndex = -1;
+        if (argumentType != CommandArgumentType.Flag)
         {
-            ++numRequiredArguments;
+            argumentIndex = numFormatArguments++;
             switch (argumentInfixType)
             {
-                case ProcessArgumentInfixType.Space:
-                    argumentFormatString += " ";
+                case CommandArgumentInfixType.Space:
+                    if (argumentPrefix != string.Empty)
+                    {
+                        argumentPrefix += " ";
+                    }
                     break;
-                case ProcessArgumentInfixType.Equal:
-                    argumentFormatString += "=";
+                case CommandArgumentInfixType.Equal:
+                    argumentPrefix += "=";
                     break;
-                case ProcessArgumentInfixType.Colon:
-                    argumentFormatString += ":";
+                case CommandArgumentInfixType.Colon:
+                    argumentPrefix += ":";
                     break;
             }
         }
 
-        switch (argumentType)
+        cachedCommandStringFormat = null;
+        commandArgumentList.Add(new CommandArgumentData
         {
-            case ProcessArgumentType.String:
-                argumentFormatString += $"{{{argIndex}}}";
-                break;
-            case ProcessArgumentType.Integer:
-                argumentFormatString += $"{{{argIndex}:d}}";
-                break;
-        }
+            type = argumentType,
+            index = argumentIndex,
+            prefix = argumentPrefix,
+        });
 
-        commandString += $" {argumentPrefix}{argumentFormatString}";
+        return index;
     }
 
-    public async Task<bool> ExecuteCommandAsync(params object[] arguments)
+    public void RemoveCommandArgument(int index)
+    {
+        var commandData = commandArgumentList[index];
+        if (commandData.index != -1)
+        {
+            --numFormatArguments;
+        }
+
+        commandArgumentList.RemoveAt(index);
+    }
+
+    public async Task<CommandResult> ExecuteCommandAsync(params object[] arguments)
     {
         using Process process = new();
 
-        // TODO test arguments before?
-        var procArgs = string.Format(CultureInfo.InvariantCulture, commandString, arguments);
+        if (arguments.Length < numFormatArguments)
+        {
+            throw new ArgumentException($"Number of passed arguments [{arguments.Length}] does not match the configured arguments [{numFormatArguments}]",
+                nameof(arguments));
+        }
+
+        if (cachedCommandStringFormat is null)
+        {
+            StringBuilder commandStringFormat = new(commandString);
+
+            foreach (var commandArgument in commandArgumentList)
+            {
+                bool valid = true;
+                
+                if (commandArgument.index != -1)
+                {
+                    object argument = arguments[commandArgument.index];
+                    switch (commandArgument.type)
+                    {
+                        //case CommandArgumentType.ToggleableFlag:
+                        case CommandArgumentType.Boolean:
+                            valid = argument is bool;
+                            break;
+                        case CommandArgumentType.Integer:
+                            valid = argument is sbyte or short or int or long 
+                                             or byte or ushort or uint or ulong;
+                            break;
+                        case CommandArgumentType.String:
+                            valid = argument is string || argument.ToString() is not null;
+                            break;
+                    }
+                }
+
+                if (!valid)
+                {
+                    throw new ArgumentException($"Invalid passed argument at index '{commandArgument.index}'");
+                }
+
+                if (commandArgument.prefix != string.Empty)
+                {
+                    commandStringFormat.Append(' ').Append(commandArgument.prefix);
+                }
+
+                if (commandArgument.index != -1)
+                {
+                    commandStringFormat.Append('{')
+                                       .Append(commandArgument.index)
+                                       .Append('}');
+                }
+            }
+
+            cachedCommandStringFormat = commandStringFormat.ToString();
+        }
+
+        var executableArgs = string.Format(CultureInfo.InvariantCulture, cachedCommandStringFormat, arguments);
 
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = ExecutablePath,
-            Arguments = procArgs,
+            FileName = executablePath,
+            Arguments = executableArgs,
             WindowStyle = ProcessWindowStyle.Hidden,
             CreateNoWindow = true,
             UseShellExecute = false,
             //RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            // TODO same for input maybe?
         };
+
+        StringBuilder commandOutput = new();
 
         var onDataReceivedHandler = new DataReceivedEventHandler((sender, dataReceived) =>
         {
-            // TODO send output somewhere
             if (dataReceived.Data is not null)
             {
-                Debugger.Log(0, "", $"CommandProcess '{DescriptiveName}': {dataReceived.Data}\n");
+#if DEBUG
+                Debugger.Log(0, "info", $"Command '{descriptiveName}': {dataReceived.Data}\n");
+#endif
 
-                CommandOutput += dataReceived.Data;
+                commandOutput.AppendLine(dataReceived.Data);
             }
         });
 
@@ -105,75 +197,49 @@ public sealed class Command
 
         if (process.Start())
         {
+#if DEBUG
+            Debugger.Log(0, "info", $"Command '{descriptiveName}' has started.\n");
+#endif
+
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
             await process.WaitForExitAsync();
 
-            // TODO send this as output somewhere (maybe log file)
-            Debugger.Log(0, "", $"CommandProcess '{DescriptiveName}' has exited with code {process.ExitCode}\n");
+#if DEBUG
+            Debugger.Log(0, "info", $"Command '{descriptiveName}' has exited with code {process.ExitCode} (0x{process.ExitCode:x8}).\n");
+#endif
 
-            return true;
+            return new CommandResult
+            {
+                hasExecuted = true,
+                exitCode = process.ExitCode,
+                executionTime = process.TotalProcessorTime,
+                output = commandOutput.ToString(),
+            };
         }
+#if DEBUG
         else
         {
-            // TODO log failure to start process somewhere
+            Debugger.Log(0, "info", $"Command '{descriptiveName}' has failed to start.\n");
         }
+#endif
 
-        return false;
+        return new CommandResult
+        {
+            hasExecuted = false,
+            exitCode = int.MinValue,
+            executionTime = TimeSpan.Zero,
+            output = string.Empty,
+        };
     }
 
     private string commandString;
 
-    private int numArguments;
-    private int numRequiredArguments;
+    private string? cachedCommandStringFormat;
 
-    private static bool IsExecutablePathValid(string filePath)
-    {
-        if (string.IsNullOrEmpty(filePath))
-        {
-            // TODO file path can't be empty, warn the user
-            return false;
-        }
+    private readonly List<CommandArgumentData> commandArgumentList;
 
-        if (!Path.IsPathRooted(filePath))
-        {
-            // TODO only accept absolute file path, warn the user
-            return false;
-        }
-
-        FileInfo fileInfo = null;
-
-        try
-        {
-            fileInfo = new FileInfo(filePath);
-        }
-        catch (SecurityException)
-        {
-            // TODO user doesn't have permission, do smth (warn and maybe prompt for higher perms)
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // TODO user also doesn't have permission? test to see diff from SecurityException
-        }
-        catch (PathTooLongException)
-        {
-            // TODO this is shitty, warn the user
-        }
-        catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
-        {
-            // TODO invalid path, warn the user
-        }
-
-        bool isValid = fileInfo is not null;
-
-        if (isValid && !fileInfo.Exists)
-        {
-            // TODO file does not exist or is a directory, warn the user
-            return false;
-        }
-
-        return isValid;
-    }
+    private int numFormatArguments;
 
 }

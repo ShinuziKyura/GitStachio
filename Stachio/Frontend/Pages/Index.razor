@@ -11,29 +11,29 @@ Welcome to your new app.
 <p>
 <button @onclick=@OnTestGitVersion>Test me!</button>
 
-<span>Git version: @GitVersion</span>
+<span>Git version: @gitVersion</span>
 </p>
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
 @code
 {
-    protected string GitVersion { get; set; }
+    protected string gitVersion { get; set; } = string.Empty;
 
     // TODO some test code, remove this once done
     protected async Task OnTestGitVersion(MouseEventArgs mouseEventArgs)
     {
         var command = new Command("Git Version");
 
-        var execPath = "C:\\Program Files\\Git\\cmd\\git.exe";
+        var execPath = @"C:\Program Files\Git\cmd\git.exe";
         var commandString = "";
         var commandArg = "--version";
-        command.SetExecutablePath(execPath);
+        command.ConfigureExecutablePath(execPath);
         command.SetCommandString(commandString);
-        command.AddCommandArgument(commandArg, ProcessArgumentType.Flag);
+        command.AddCommandArgument(commandArg, CommandArgumentType.Flag);
 
-        await UISafeTask.Run(async () => await command.ExecuteCommandAsync());
+        var result = await UISafeTask.Run(async () => await command.ExecuteCommandAsync());
 
-        GitVersion = command.CommandOutput;
+        gitVersion = result.output;
     }
 }
