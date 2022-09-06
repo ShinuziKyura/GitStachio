@@ -1,6 +1,6 @@
 ﻿namespace Stachio.Backend.Model.Enums;
 
-public enum CommandArgumentInfixType
+public enum StacheCommandArgInfixType
 {
     Space,
     Equal,

@@ -4,23 +4,41 @@ using System.Text;
 
 using Stachio.Backend.Model.Enums;
 using Stachio.Backend.Model.Structs;
+using Stachio.Backend.View.Enums;
+using Stachio.Backend.View.Structs;
 
 namespace Stachio.Backend.Model;
 
-public class Command
+public class StacheCommand
 {
-    public string descriptiveName { get; private set; }
+    // TODO replace this for something more meaningful later (maybe a uniqueName string built using descriptiveName?)
+    // TODO make commands more searchable in the registry
+    public Guid uniqueId { get; }
+
+    public string descriptiveName { get; }
 
     public string executablePath { get; private set; }
 
-    public Command(string newDescriptiveName)
+    public StacheCommand(Guid newUniqueId) // Only used for comparison
     {
+        uniqueId = newUniqueId;
+        
+        descriptiveName = null!;
+        executablePath = null!;
+
+        commandString = null!;
+        commandArgumentList = null!;
+    }
+
+    public StacheCommand(string newDescriptiveName)
+    {
+        uniqueId = Guid.NewGuid();
         descriptiveName = newDescriptiveName;
         executablePath = string.Empty;
 
         commandString = string.Empty;
         cachedCommandStringFormat = null;
-        commandArgumentList = new List<CommandArgumentData>();
+        commandArgumentList = new();
         numFormatArguments = 0;
     }
 
@@ -47,45 +65,45 @@ public class Command
         commandString = newCommandString;
     }
 
-    public IEnumerable<CommandArgumentData> GetCommandArgumentList()
+    public IEnumerable<StacheCommandArgData> GetCommandArgumentList()
     {
         return commandArgumentList;
     }
 
-    public CommandArgumentData GetCommandArgument(int index)
+    public StacheCommandArgData GetCommandArgument(int index)
     {
         return commandArgumentList[index];
     }
 
     public int AddCommandArgument(string argumentPrefix,
-                                  CommandArgumentType argumentType,
-                                  CommandArgumentInfixType argumentInfixType = CommandArgumentInfixType.Space)
+                                  StacheCommandArgType argumentType,
+                                  StacheCommandArgInfixType argumentInfixType = StacheCommandArgInfixType.Space)
     {
         int index = commandArgumentList.Count;
 
         int argumentIndex = -1;
-        if (argumentType != CommandArgumentType.Flag)
+        if (argumentType != StacheCommandArgType.Flag)
         {
             argumentIndex = numFormatArguments++;
             switch (argumentInfixType)
             {
-                case CommandArgumentInfixType.Space:
+                case StacheCommandArgInfixType.Space:
                     if (argumentPrefix != string.Empty)
                     {
                         argumentPrefix += " ";
                     }
                     break;
-                case CommandArgumentInfixType.Equal:
+                case StacheCommandArgInfixType.Equal:
                     argumentPrefix += "=";
                     break;
-                case CommandArgumentInfixType.Colon:
+                case StacheCommandArgInfixType.Colon:
                     argumentPrefix += ":";
                     break;
             }
         }
 
         cachedCommandStringFormat = null;
-        commandArgumentList.Add(new CommandArgumentData
+        commandArgumentList.Add(new StacheCommandArgData
         {
             type = argumentType,
             index = argumentIndex,
@@ -106,7 +124,7 @@ public class Command
         commandArgumentList.RemoveAt(index);
     }
 
-    public async Task<CommandResult> ExecuteCommandAsync(params object[] arguments)
+    public async Task<StacheCommandResult> ExecuteCommandAsync(params object[] arguments)
     {
         using Process process = new();
 
@@ -118,50 +136,7 @@ public class Command
 
         if (cachedCommandStringFormat is null)
         {
-            StringBuilder commandStringFormat = new(commandString);
-
-            foreach (var commandArgument in commandArgumentList)
-            {
-                bool valid = true;
-                
-                if (commandArgument.index != -1)
-                {
-                    object argument = arguments[commandArgument.index];
-                    switch (commandArgument.type)
-                    {
-                        //case CommandArgumentType.ToggleableFlag:
-                        case CommandArgumentType.Boolean:
-                            valid = argument is bool;
-                            break;
-                        case CommandArgumentType.Integer:
-                            valid = argument is sbyte or short or int or long 
-                                             or byte or ushort or uint or ulong;
-                            break;
-                        case CommandArgumentType.String:
-                            valid = argument is string || argument.ToString() is not null;
-                            break;
-                    }
-                }
-
-                if (!valid)
-                {
-                    throw new ArgumentException($"Invalid passed argument at index '{commandArgument.index}'");
-                }
-
-                if (commandArgument.prefix != string.Empty)
-                {
-                    commandStringFormat.Append(' ').Append(commandArgument.prefix);
-                }
-
-                if (commandArgument.index != -1)
-                {
-                    commandStringFormat.Append('{')
-                                       .Append(commandArgument.index)
-                                       .Append('}');
-                }
-            }
-
-            cachedCommandStringFormat = commandStringFormat.ToString();
+            cachedCommandStringFormat = BuildCachedCommandString(arguments);
         }
 
         var executableArgs = string.Format(CultureInfo.InvariantCulture, cachedCommandStringFormat, arguments);
@@ -210,7 +185,7 @@ public class Command
             Debugger.Log(0, "info", $"Command '{descriptiveName}' has exited with code {process.ExitCode} (0x{process.ExitCode:x8}).\n");
 #endif
 
-            return new CommandResult
+            return new StacheCommandResult
             {
                 hasExecuted = true,
                 exitCode = process.ExitCode,
@@ -225,7 +200,7 @@ public class Command
         }
 #endif
 
-        return new CommandResult
+        return new StacheCommandResult
         {
             hasExecuted = false,
             exitCode = int.MinValue,
@@ -234,12 +209,70 @@ public class Command
         };
     }
 
+    public override bool Equals(object? obj)
+    {
+        return obj is StacheCommand command && uniqueId == command.uniqueId;
+    }
+
+    public override int GetHashCode()
+    {
+        return uniqueId.GetHashCode();
+    }
+
     private string commandString;
 
     private string? cachedCommandStringFormat;
 
-    private readonly List<CommandArgumentData> commandArgumentList;
+    private readonly List<StacheCommandArgData> commandArgumentList;
 
     private int numFormatArguments;
 
+    private string BuildCachedCommandString(object[] arguments)
+    {
+        StringBuilder commandStringFormat = new(commandString);
+
+        foreach (var commandArgument in commandArgumentList)
+        {
+            bool valid = true;
+
+            if (commandArgument.index != -1)
+            {
+                object argument = arguments[commandArgument.index];
+                switch (commandArgument.type)
+                {
+                    //case CommandArgumentType.ToggleableFlag:
+                    case StacheCommandArgType.Boolean:
+                        valid = argument is bool;
+                        break;
+                    case StacheCommandArgType.Integer:
+                        valid = argument is sbyte or short or int or long
+                                         or byte or ushort or uint or ulong;
+                        break;
+                    case StacheCommandArgType.String:
+                        valid = argument is string || argument.ToString() is not null;
+                        break;
+                }
+            }
+
+            if (!valid)
+            {
+                throw new ArgumentException($"Invalid passed argument at index '{commandArgument.index}'");
+            }
+
+            if (commandArgument.prefix != string.Empty)
+            {
+                commandStringFormat.Append(' ')
+                                   .Append(commandArgument.prefix);
+            }
+
+            if (commandArgument.index != -1)
+            {
+                commandStringFormat.Append('{')
+                                   .Append(commandArgument.index)
+                                   .Append('}');
+            }
+        }
+
+        return commandStringFormat.ToString();
+    }
 }

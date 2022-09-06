@@ -2,7 +2,7 @@
 
 public sealed class AppConfig
 {
-    public List<CommandSequence> commandSequenceList { get; private set; }
+    public List<StacheCommandSeq> commandSequenceList { get; private set; }
 
     public List<Repository> repoList { get; private set; }
 
@@ -13,14 +13,14 @@ public sealed class AppConfig
         return instance ?? (instance = new AppConfig());
     }
 
-    public void addCommandSequence(CommandSequence commandSequence)
+    public void addCommandSequence(StacheCommandSeq stacheCommandSeq)
     {
-        commandSequenceList.Add(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        commandSequenceList.Add(stacheCommandSeq ?? throw new ArgumentNullException(nameof(stacheCommandSeq)));
     }
 
-    public bool deleteCommandSequence(CommandSequence commandSequence)
+    public bool deleteCommandSequence(StacheCommandSeq stacheCommandSeq)
     {
-        return commandSequenceList.Remove(commandSequence ?? throw new ArgumentNullException(nameof(commandSequence)));
+        return commandSequenceList.Remove(stacheCommandSeq ?? throw new ArgumentNullException(nameof(stacheCommandSeq)));
     }
 
     public void addRepository(Repository repo)
@@ -51,7 +51,7 @@ public sealed class AppConfig
 
         this.userList = new List<User>();
 
-        this.commandSequenceList = new List<CommandSequence>();
+        this.commandSequenceList = new List<StacheCommandSeq>();
 
     }
 }

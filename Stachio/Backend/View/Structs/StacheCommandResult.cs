@@ -1,6 +1,6 @@
-﻿namespace Stachio.Backend.Model.Structs;
+﻿namespace Stachio.Backend.View.Structs;
 
-public struct CommandResult
+public struct StacheCommandResult
 {
     public bool hasExecuted;
 

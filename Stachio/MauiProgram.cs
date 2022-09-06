@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.WebView.Maui;
 using Stachio.Backend.Controller;
 using Stachio.Backend.Model.Enums;
 using Stachio.Frontend.Shared;
-using Command = Stachio.Backend.Model.Command;
+using Command = Stachio.Backend.Model.StacheCommand;
 
 namespace Stachio;
 

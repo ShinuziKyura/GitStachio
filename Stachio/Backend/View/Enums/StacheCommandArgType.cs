@@ -1,6 +1,6 @@
-﻿namespace Stachio.Backend.Model.Enums;
+﻿namespace Stachio.Backend.View.Enums;
 
-public enum CommandArgumentType
+public enum StacheCommandArgType
 {
     Flag,
     //ToggleableFlag, // TODO implement this later

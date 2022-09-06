@@ -1,10 +1,7 @@
 ﻿@page "/"
-@inject Stachio.Backend.Controller.BigStachioController BigStachioController
 
-
-@using Stachio.Backend.Model.Enums
-@using Stachio.Backend.Model
-@using Stachio.Backend.Utils
+@using Stachio.Backend.Controller
+@using Stachio.Backend.View.Enums
 
 <h1>Hello, world!</h1>
 
@@ -25,16 +22,12 @@ Welcome to your new app.
     // TODO some test code, remove this once done
     protected async Task OnTestGitVersion(MouseEventArgs mouseEventArgs)
     {
-        var command = new Command("Git Version");
+        var commandController = StacheCommandController.GetInstance();
+        
+        var command = commandController.MakeGitCommand("Git Version");
+        commandController.AddGitCommandFlag(command, "--version", StacheCommandArgType.Flag);
 
-        var execPath = @"C:\Program Files\Git\cmd\git.exe";
-        var commandString = "";
-        var commandArg = "--version";
-        command.ConfigureExecutablePath(execPath);
-        command.SetCommandString(commandString);
-        command.AddCommandArgument(commandArg, CommandArgumentType.Flag);
-
-        var result = await UISafeTask.Run(async () => await command.ExecuteCommandAsync());
+        var result = await commandController.ExecuteGitCommandAsync(command);
 
         gitVersion = result.output;
     }

@@ -51,11 +51,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Backend\View\" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+      <Folder Include="Backend\View\Enums\" />
     </ItemGroup>
 
 </Project>
