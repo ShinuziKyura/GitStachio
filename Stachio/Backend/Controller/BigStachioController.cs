@@ -5,8 +5,8 @@ public sealed class BigStachioController
     public BigStachioController()
     {
         appConfigController = AppConfigController.getInstance();
-        commandController = CommandController.getInstance();
-        commandSequenceController = CommandSequenceController.getInstance();
+        commandController = StacheCommandController.GetInstance();
+        commandSeqController = StacheCommandSeqController.GetInstance();
         logController = LogController.getInstance();
         repoConfigController = RepoConfigController.getInstance();
         repositoryController = RepositoryController.getInstance();
@@ -17,11 +17,9 @@ public sealed class BigStachioController
 
     public void LoadAppConfig() { appConfigController.Load();}
 
-
-
     private AppConfigController appConfigController;
-    private CommandController commandController;
-    private CommandSequenceController commandSequenceController;
+    private StacheCommandController commandController;
+    private StacheCommandSeqController commandSeqController;
     private LogController logController;
     private RepoConfigController repoConfigController;
     private RepositoryController repositoryController;

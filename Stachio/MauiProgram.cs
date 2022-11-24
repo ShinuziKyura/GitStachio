@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using Stachio.Backend.Controller;
+using Stachio.Backend.Model.Enums;
 using Stachio.Frontend.Shared;
+using Command = Stachio.Backend.Model.StacheCommand;
 
 namespace Stachio;
 
@@ -16,12 +19,12 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 			});
 
-		builder.Services.AddSingleton<BigStachioController>();
-
         builder.Services.AddMauiBlazorWebView();
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
+        builder.Services.AddSingleton<BigStachioController>();
+
         return builder.Build();
-	}
+    }
 }
